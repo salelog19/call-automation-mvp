@@ -2,8 +2,6 @@
 
 ## Todo
 
-- Уточнить и зафиксировать правило MVP: один `visit` -> один `call` или один `visit` -> много `calls`
-- Усилить SQL-схему проверками от межпроектных связей между `projects`, `tracking_numbers`, `visits`, `calls`
 - Выбрать стек backend для MVP
 - Создать backend-проект
 - Реализовать endpoint `POST /assign-number`
@@ -30,3 +28,5 @@
 - Утверждена схема данных для `Supabase`
 - Подготовлена первая SQL-миграция для таблиц `projects`, `tracking_numbers`, `visits`, `calls`
 - Добавлена Git-шпаргалка в `docs/git-cheatsheet.md`
+- Зафиксировано правило MVP: один `visit` может иметь несколько `calls`
+- SQL-схема усилена составными foreign key от межпроектных связей
