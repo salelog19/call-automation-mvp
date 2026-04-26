@@ -24,3 +24,5 @@
 - Целостность связей между `projects`, `tracking_numbers`, `visits`, `calls` усиливаем составными foreign key на уровне SQL
 - Для backend MVP выбираем стек: `Node.js 24 LTS` + `TypeScript` + `Fastify` + `pg` + `Zod` + `pino`
 - С `Supabase` работаем как с Postgres через connection string; бизнес-логику назначения номера и привязки звонка держим в backend, а не в `n8n`
+- `POST /assign-number` работает в транзакции: при повторном запросе в той же активной `session_id` возвращаем уже назначенный номер, а не выделяем новый
+- Если в пуле нет свободного активного номера, `assign-number` возвращает `409` и `default_phone` проекта как fallback-подсказку для клиента
