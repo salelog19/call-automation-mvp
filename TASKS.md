@@ -2,8 +2,6 @@
 
 ## Todo
 
-- Выбрать стек backend для MVP
-- Создать backend-проект
 - Реализовать endpoint `POST /assign-number`
 - Реализовать логику выбора свободного подменного номера
 - Реализовать сохранение визита в `Supabase`
@@ -30,3 +28,5 @@
 - Добавлена Git-шпаргалка в `docs/git-cheatsheet.md`
 - Зафиксировано правило MVP: один `visit` может иметь несколько `calls`
 - SQL-схема усилена составными foreign key от межпроектных связей
+- Выбран backend-стек: `Node.js 24 LTS` + `TypeScript` + `Fastify` + `pg` + `Zod` + `pino`
+- Создан каркас backend-проекта

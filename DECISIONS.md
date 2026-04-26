@@ -22,3 +22,5 @@
 - Нужно отдельно зафиксировать правило MVP: один `visit` может иметь только один `call` или несколько `calls`
 - Для MVP фиксируем правило: один `visit` может иметь несколько `calls`
 - Целостность связей между `projects`, `tracking_numbers`, `visits`, `calls` усиливаем составными foreign key на уровне SQL
+- Для backend MVP выбираем стек: `Node.js 24 LTS` + `TypeScript` + `Fastify` + `pg` + `Zod` + `pino`
+- С `Supabase` работаем как с Postgres через connection string; бизнес-логику назначения номера и привязки звонка держим в backend, а не в `n8n`
