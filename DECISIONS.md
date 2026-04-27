@@ -28,3 +28,4 @@
 - Если в пуле нет свободного активного номера, `assign-number` возвращает `409` и `default_phone` проекта как fallback-подсказку для клиента
 - `POST /call-webhook` сначала ищет `tracking_number` по `dialed_phone_number`, затем пытается привязать звонок к самому свежему `visit` в окне между `visited_at` и `assignment_expires_at`
 - Даже если визит не найден, звонок все равно сохраняется в `calls`; в таком случае `visit_id` остается `null`
+- Для первого серверного деплоя используем в Coolify `Dockerfile Build Pack` с `Base Directory = /backend`
