@@ -1,6 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
+import {
+  CallProjectNotFoundError,
+  handleCallWebhook,
+} from '../services/call-webhook.js';
+
 const callWebhookBodySchema = z.object({
   projectId: z.string().uuid(),
   providerCallId: z.string().min(1).optional(),
@@ -23,11 +28,30 @@ export function registerCallWebhookRoute(app: FastifyInstance) {
       };
     }
 
-    reply.code(501);
-    return {
-      error: 'not_implemented',
-      message: 'Call webhook processing will be implemented in the next step.',
-      payloadPreview: parsed.data,
-    };
+    try {
+      const result = await handleCallWebhook(parsed.data);
+
+      return {
+        attributed: result.attributed,
+        callId: result.callId,
+        trackingNumberId: result.trackingNumberId,
+        visitId: result.visitId,
+      };
+    } catch (error) {
+      if (error instanceof CallProjectNotFoundError) {
+        reply.code(404);
+        return {
+          error: 'project_not_found',
+          message: error.message,
+        };
+      }
+
+      app.log.error({ err: error }, 'Failed to process call webhook');
+      reply.code(500);
+      return {
+        error: 'internal_error',
+        message: 'Failed to process call webhook.',
+      };
+    }
   });
 }
