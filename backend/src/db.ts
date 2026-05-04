@@ -2,8 +2,18 @@ import { Pool, type PoolClient } from 'pg';
 
 import { config } from './config.js';
 
+function shouldUseSsl(databaseUrl: string): boolean {
+  const lower = databaseUrl.toLowerCase();
+  return lower.includes('supabase.com') || lower.includes('sslmode=require');
+}
+
 export const pool = new Pool({
   connectionString: config.DATABASE_URL,
+  ssl: shouldUseSsl(config.DATABASE_URL)
+    ? {
+        rejectUnauthorized: false,
+      }
+    : undefined,
 });
 
 export async function checkDatabaseConnection(): Promise<void> {
