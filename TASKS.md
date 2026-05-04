@@ -8,7 +8,7 @@
 
 ## In Progress
 
-- Развернуть backend через `Coolify`
+- Развернуть backend через `Coolify` (Dockerfile исправлен: добавлен curl, healthcheck переведен на curl, добавлены ENV HOST и PORT)
 
 ## Done
 
