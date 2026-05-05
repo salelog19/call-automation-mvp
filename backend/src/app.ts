@@ -38,9 +38,7 @@ export function buildApp() {
     };
   });
 
-  app.get('/api/number', async () => {
-    return { number: '+375291234567' };
-  });
+ 
 
   registerHealthRoute(app);
   registerAssignNumberRoute(app);
