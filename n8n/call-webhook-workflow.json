@@ -1,0 +1,132 @@
+{
+  "name": "Call Tracking - Telephony Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "json",
+        "json": "{\n  \"projectId\": \"YOUR_PROJECT_UUID\",\n  \"calledAt\": \"{{new Date().toISOString()}}\",\n  \"clientPhone\": \"={{$json.caller_id || ''}}\",\n  \"dialedPhoneNumber\": \"={{$json.called_did || ''}}\",\n  \"callStatus\": \"{{$json.event === 'HANGUP' ? 'completed' : 'ringing'}}\",\n  \"durationSeconds\": {{$json.duration || null}},\n  \"providerCallId\": \"={{$json.call_id || ''}}\"\n}",
+        "options": {},
+        "mimeType": "application/json"
+      },
+      "id": "transform",
+      "name": "Transform Webhook Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://xc52y96c5mwkh4tkh9nx9s89.176.31.78.108.sslip.io/call-webhook",
+        "jsonParameters": true,
+        "specifyBody": "json",
+        "json": "={{$json}}",
+        "options": {}
+      },
+      "id": "send-to-backend",
+      "name": "Send to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.attributed}}",
+              "operation": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-attribution",
+      "name": "Check Attribution",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "channel": "telegram",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "📞 New attributed call!\n📱 {{$json.clientPhone}}\n📞 to {{$json.dialedPhoneNumber}}\n🔗 Visit: {{$json.visitId}}",
+        "additionalFields": {}
+      },
+      "id": "notify-telegram",
+      "name": "Notify Telegram (Attributed)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "channel": "telegram",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "📞 Call not attributed\n📱 {{$json.clientPhone}}\n📞 to {{$json.dialedPhoneNumber}}",
+        "additionalFields": {}
+      },
+      "id": "notify-telegram-no-attribution",
+      "name": "Notify Telegram (No Attribution)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1120, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "transform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transform": {
+      "main": [
+        [
+          {
+            "node": "send-to-backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send-to-backend": {
+      "main": [
+        [
+          {
+            "node": "check-attribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check-attribution": {
+      "main": [
+        [
+          {
+            "node": "notify-telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notify-telegram-no-attribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": ["call-tracking", "telephony", "webhook"]
+}
