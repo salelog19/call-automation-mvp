@@ -12,8 +12,7 @@ COPY src ./src
 RUN npm run build
 
 FROM node:24-alpine AS runtime
-RUN apk update && apk add --no-cache curl ca-certificates && rm -rf /var/cache/apk/*
-RUN which curl && curl --version
+RUN echo "Installing curl..." && apk update && apk add --no-cache curl ca-certificates && echo "Curl installed" && which curl && curl --version
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
