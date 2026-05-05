@@ -3,10 +3,12 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-
 RUN npm install
 
 COPY . .
+
+# ломаем кэш гарантированно
+RUN echo "BUILD $(date)"
 
 RUN npm run build
 
