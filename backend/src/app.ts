@@ -1,4 +1,6 @@
 import Fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
 import { config } from './config.js';
 import { registerAssignNumberRoute } from './routes/assign-number.js';
@@ -19,6 +21,13 @@ export function buildApp() {
             },
           },
     },
+  });
+
+  // Serve static files from 'frontend' directory
+  app.register(fastifyStatic, {
+    root: path.join(import.meta.dirname, '..', '..', 'frontend'),
+    prefix: '/scripts/',
+    decorateReply: false,
   });
 
   app.get('/', async () => {
