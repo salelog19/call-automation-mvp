@@ -2,7 +2,10 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
   assignNumber,
-  type { AssignNumberInput, AssignNumberResult },
+  ProjectNotFoundError,
+  NoAvailableNumberError,
+  type AssignNumberInput,
+  type AssignNumberResult,
 } from '../services/assign-number.js';
 
 const getNumberQuerySchema = z.object({
@@ -20,7 +23,7 @@ const getNumberQuerySchema = z.object({
 
 export function registerGetNumberRoute(app: FastifyInstance) {
   app.get<{
-    Querystring: z.infer<typeof getNumberQuerySchema>
+    Querystring: z.infer<typeof getNumberQuerySchema>;
   }>('/api/number', async (request, reply) => {
     const parsed = getNumberQuerySchema.safeParse(request.query);
 
@@ -46,7 +49,7 @@ export function registerGetNumberRoute(app: FastifyInstance) {
     };
 
     try {
-      const result = await assignNumber(input);
+      const result: AssignNumberResult = await assignNumber(input);
 
       return {
         assignmentExpiresAt: result.assignmentExpiresAt,
@@ -67,13 +70,14 @@ export function registerGetNumberRoute(app: FastifyInstance) {
       if (error instanceof NoAvailableNumberError) {
         reply.code(409);
         return {
-          defaultPhone: error.defaultPhone,
           error: 'no_available_number',
           message: 'No active tracking numbers are currently available.',
+          defaultPhone: error.defaultPhone,
         };
       }
 
       app.log.error({ err: error }, 'Failed to assign tracking number');
+
       reply.code(500);
       return {
         error: 'internal_error',
@@ -82,6 +86,3 @@ export function registerGetNumberRoute(app: FastifyInstance) {
     }
   });
 }
-
-// Re-export errors for use in route
-export { ProjectNotFoundError, NoAvailableNumberError } from '../services/assign-number.js';
