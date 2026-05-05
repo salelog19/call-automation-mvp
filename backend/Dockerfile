@@ -1,6 +1,7 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json ./
+RUN rm -f package-lock.json
 COPY package-lock.json ./
 RUN npm install
 
