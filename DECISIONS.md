@@ -15,10 +15,17 @@
 
 - Для подключения backend к Supabase в Coolify нужно добавить сеть Supabase (`r9nejr488xlvrw3rwepooir9`) в разделе "Connect to Existing Networks"
 - В `DATABASE_URL` для Docker-сети следует использовать имя контейнера (`supabase-db-r9nejr488xlvrw3rwepooir9`) вместо IP (`10.0.3.6`) для корректного DNS-разрешения
-- При сборке Docker-образа нужно явно устанавливать `curl` и `ca-certificates` ( Alpine Linux)
+- При сборке Docker-образа нужно явно устанавливать `curl` и `ca-certificates` (Alpine Linux)
 - Для стабильной работы backend в контейнере нужно принудительно слушать `0.0.0.0` (переменная `HOST=0.0.0.0`)
 - При изменении `Dockerfile` в Coolify может потребоваться "Force rebuild" для сброса кэша сборки
 - Healthcheck в Coolify можно отключить, если в `Dockerfile` уже есть `HEALTHCHECK` (или наоборот)
+- JS-сниппет для сайта реализован (`frontend/ct-snippet.js`): поддерживает HTTPS, улучшено получение `ym_uid`
+- Создана демо-страница (`frontend/demo.html`) с реальным `projectId`
+- Создана документация фронтенда (`frontend/README.md`)
+- Создан гайд по телефонии (`docs/telephony-setup.md`): Zadarma, SIP-транки, локальная АТС
+- Создан шаблон n8n workflow (`n8n/call-webhook-workflow.json`) для обработки webhook от телефонии
+- Создан скрипт полного цикла (`test-full-cycle.sh`) для проверки MVP
+- Все фронтенд-файлы закоммичены и отправлены в репозиторий
 
 - Первую SQL-схему фиксируем в `supabase/migrations/20260427_001_init_schema.sql`
 - Для первичного ключа во всех основных таблицах используем `UUID` с `gen_random_uuid()`

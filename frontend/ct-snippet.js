@@ -44,11 +44,18 @@
       // Method 1: From Yandex.Metrica object
       if (typeof ym !== 'undefined' && ym.getCid) {
         const cid = ym.getCid();
-        if (cid && cid[1]) return cid[1];
+        if (cid && cid[1]) {
+          const uid = cid[1];
+          localStorage.setItem('ct_ym_uid', uid);
+          return uid;
+        }
       }
       // Method 2: From cookie
       const match = document.cookie.match(/_ym_uid=([^;]+)/);
-      if (match) return match[1];
+      if (match) {
+        localStorage.setItem('ct_ym_uid', match[1]);
+        return match[1];
+      }
       // Method 3: From localStorage (if previously saved)
       const saved = localStorage.getItem('ct_ym_uid');
       if (saved) return saved;
