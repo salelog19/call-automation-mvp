@@ -6,7 +6,7 @@ async function main() {
 
   try {
     await app.listen({
-      host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : config.HOST,
+      host: '0.0.0.0',
       port: config.PORT,
     });
   } catch (error) {

@@ -12,7 +12,8 @@ COPY src ./src
 RUN npm run build
 
 FROM node:24-alpine AS runtime
-RUN apk add --no-cache curl && rm -rf /var/cache/apk/*
+RUN apk update && apk add --no-cache curl ca-certificates && rm -rf /var/cache/apk/*
+RUN which curl && curl --version
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
@@ -22,5 +23,5 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -f -s -o /dev/null http://127.0.0.1:3000/health || exit 1
+  CMD curl -f -s http://127.0.0.1:3000/health || exit 1
 CMD ["node", "dist/index.js"]
