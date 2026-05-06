@@ -7,7 +7,7 @@
 (function(){
   'use strict';
   const C={
-    url:'https://xc52y96c5mwkh4tkh9nx9s89.176.31.78.108.sslip.io',
+    url:'https://api.proaudio.by/api',
     pid:null, dph:null
   };
   // Read config from window
