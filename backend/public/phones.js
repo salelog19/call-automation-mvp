@@ -44,7 +44,7 @@
 };
   const rN=async()=>{
     if(!C.pid)return{error:'no_pid'};
-    const b={projectId:C.pid,sessionId:gS(),ymUid:gU(),landingUrl:location.href,referrer:document.referrer||'',...gT(),visitedAt:new Date().toISOString()};
+    const b={projectId:C.pid,sessionId:gS(),ymUid:gU(),landingUrl:location.href,referrer:document.referrer||undefined,...gT(),visitedAt:new Date().toISOString()};
     try{
       const r=await fetch(C.url+'/assign-number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
       if(!r.ok)return{error:'req_fail'};
