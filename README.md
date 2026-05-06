@@ -51,6 +51,13 @@ MVP-сервис динамического колтрекинга для под
 
 `visit capture -> number assignment -> phone swap -> call webhook -> attribution`
 
+## Текущая рабочая версия
+
+**Статус:** рабочая версия  
+**Время обновления:** 2026-05-06T22:22:30+03:00  
+**Изменения:** номер телефона меняется на тестовом сайте, динамическая подмена работает  
+**Проверено:** backend deploy, API assign-number, PostgreSQL, tracking numbers, visits, dynamic number assignment
+
 
 # Security TODO / Production Hardening
 
