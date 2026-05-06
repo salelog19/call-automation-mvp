@@ -1,7 +1,7 @@
 import type { PoolClient } from 'pg';
 
 import { config } from '../config.js';
-import { withTransaction } from '../db';
+import { withTransaction } from '../db.js';
 
 export type AssignNumberInput = {
   landingUrl?: string;
@@ -57,7 +57,7 @@ export class NoAvailableNumberError extends Error {
 
 export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult> {
   try {
-    return await withTransaction(async (client) => {
+    withTransaction(async (client: PoolClient) => {
       const visitedAt = input.visitedAt ? new Date(input.visitedAt) : new Date();
       await lockSessionAssignment(client, input.projectId, input.sessionId);
 
