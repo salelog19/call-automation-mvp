@@ -1,8 +1,7 @@
 /**
- * Call Tracking Compact Snippet
- * Host: app.call-tracking.by/scripts/phones.js
- * Usage: <script async src="//app.call-tracking.by/scripts/phones.js?YOUR_PROJECT_ID"></script>
- * Or set window.CallTrackingConfig = { projectId: '...', defaultPhone: '...' } before script.
+ * Profitx.by Call Tracking
+ * Usage:
+ * <script async src="https://api.proaudio.by/scripts/phones.js?YOUR_PROJECT_ID"></script>
  */
 (function(){
   'use strict';
@@ -44,7 +43,10 @@
       const r=await fetch(C.url+'/assign-number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
       if(!r.ok)return{error:'req_fail'};
       return await r.json()
-    }catch(e){return{error:'net_err'}}
+    }catch(e){
+  console.error('[CT] Fetch error:', e);
+  return { error:'net_err' };
+}
   };
   const sw=(rn,dp)=>{
     if(!rn&&!dp)return;
