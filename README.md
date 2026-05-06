@@ -50,3 +50,120 @@ MVP-сервис динамического колтрекинга для под
 Собрать первую рабочую цепочку:
 
 `visit capture -> number assignment -> phone swap -> call webhook -> attribution`
+
+
+# Security TODO / Production Hardening
+
+## Текущие временные решения
+
+На этапе MVP PostgreSQL был открыт наружу через public port 5432 для упрощения подключения backend контейнера.
+
+Текущая схема подключения:
+
+* Backend подключается к PostgreSQL по IP сервера
+* DATABASE_URL использует внешний адрес сервера
+* PostgreSQL доступен публично
+
+Это временное решение и не должно оставаться в production.
+
+---
+
+## Что нужно сделать позже
+
+### 1. Убрать public доступ к PostgreSQL
+
+Не использовать:
+
+* Public Port 5432
+* Прямой доступ к PostgreSQL через IP сервера
+
+Вместо этого:
+
+* использовать private docker network
+  или
+* internal container hostname
+  или
+* VPN/Tailscale
+  или
+* firewall allowlist
+
+---
+
+### 2. Перенести backend и PostgreSQL в одну docker network
+
+Чтобы backend подключался по internal hostname:
+
+```env
+DATABASE_URL=postgresql://postgres:PASSWORD@supabase-db:5432/postgres
+```
+
+---
+
+### 3. Сменить PostgreSQL password
+
+Текущий пароль использовался в логах и тестах разработки.
+
+Нужно:
+
+* сгенерировать новый strong password
+* обновить password во всех Supabase сервисах одновременно
+* обновить DATABASE_URL backend
+
+Важно:
+У self-hosted Supabase пароль PostgreSQL используется несколькими сервисами:
+
+* auth
+* analytics
+* rest
+* storage
+* realtime
+* studio
+
+Смена пароля только в postgres ломает stack.
+
+---
+
+### 4. Убрать секреты из логов и чатов
+
+Никогда не публиковать:
+
+* DATABASE_URL
+* PostgreSQL password
+* Coolify keys
+* API keys
+* JWT secrets
+
+---
+
+### 5. Добавить firewall правила
+
+Ограничить доступ:
+
+* только backend контейнеру
+  или
+* только trusted IP
+
+---
+
+### 6. Настроить backup PostgreSQL
+
+Добавить:
+
+* автоматические backup
+* retention policy
+* проверку восстановления backup
+
+---
+
+## Текущий статус
+
+MVP работает:
+
+* backend deploy
+* API assign-number
+* PostgreSQL
+* tracking numbers
+* visits
+* dynamic number assignment
+
+Security hardening отложен до стабилизации MVP.
