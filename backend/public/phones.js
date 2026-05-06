@@ -7,7 +7,7 @@
 (function(){
   'use strict';
   const C={
-    url:'https://api.proaudio.by/api',
+    url:'https://api.proaudio.by',
     pid:null, dph:null
   };
   // Read config from window
