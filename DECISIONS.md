@@ -11,21 +11,37 @@
 - Для первой версии принимаем предварительное окно закрепления номера за визитом: `30 минут`
 - На первом этапе не делаем мультиарендность, биллинг и сложную админку
 
-## 2026-05-05
+## 2026-05-05 (продолжение)
 
-- Для подключения backend к Supabase в Coolify нужно добавить сеть Supabase (`r9nejr488xlvrw3rwepooir9`) в разделе "Connect to Existing Networks"
-- В `DATABASE_URL` для Docker-сети следует использовать имя контейнера (`supabase-db-r9nejr488xlvrw3rwepooir9`) вместо IP (`10.0.3.6`) для корректного DNS-разрешения
-- При сборке Docker-образа нужно явно устанавливать `curl` и `ca-certificates` (Alpine Linux)
-- Для стабильной работы backend в контейнере нужно принудительно слушать `0.0.0.0` (переменная `HOST=0.0.0.0`)
-- При изменении `Dockerfile` в Coolify может потребоваться "Force rebuild" для сброса кэша сборки
-- Healthcheck в Coolify можно отключить, если в `Dockerfile` уже есть `HEALTHCHECK` (или наоборот)
-- JS-сниппет для сайта реализован (`frontend/ct-snippet.js`): поддерживает HTTPS, улучшено получение `ym_uid`
-- Создана демо-страница (`frontend/demo.html`) с реальным `projectId`
-- Создана документация фронтенда (`frontend/README.md`)
-- Создан гайд по телефонии (`docs/telephony-setup.md`): Zadarma, SIP-транки, локальная АТС
-- Создан шаблон n8n workflow (`n8n/call-webhook-workflow.json`) для обработки webhook от телефонии
-- Создан скрипт полного цикла (`test-full-cycle.sh`) для проверки MVP
-- Все фронтенд-файлы закоммичены и отправлены в репозиторий
+- Dockerfile упрощен: убран multi-stage, оставлен single-stage
+- Удалены строки с ARG SUPABASE_* (чувствительные данные)
+- Создан новый эндпоинт `GET /api/number` для получения назначенного номера
+- Эндпоинт зарегистрирован в `app.ts`
+- Исправлена проблема с `npm ci` → заменено на `npm install`
+- В `package.json` исправлена зависимость: `"@fastify/static": "^8.0.0"` (вместо неверной `7.0.0`)
+- В `package-lock.json` исправлены записи для `@fastify/static` и `@fastify/proxy-addr`
+- Coolify продолжает возвращать ошибки деплоя (npm integrity errors)
+- Возможная причина: Coolify кэширует старые слои, не видит новые коммиты
+- Домен `api.proaudio.by` настроен, но эндпоинты не отвечают (404/не запущен)
+
+## Итоговое состояние (кратко)
+
+**✅ Сделано:**
+- Backend: эндпоинты `/health`, `/assign-number`, `/call-webhook`, `GET /api/number`
+- Frontend: `frontend/phones.js` готов к установке через GTM
+- Dockerfile: упрощен, исправлены зависимости
+- Supabase: подключение настроено (сеть `r9nejr488xlvrw3rwepooir9`)
+
+**❌ Проблемы:**
+- Coolify не видит новые коммиты (API возвращает "Not found")
+- Деплой падает из-за конфликтов `package-lock.json`
+- Эндпоинты не доступны через `api.proaudio.by` (404)
+
+**🎯 Следующий шаг:**
+- В Coolify UI нажать **Deploy** с **Force rebuild**
+- Дождаться успешного деплоя
+- Проверить: `curl -I https://api.proaudio.by/health`
+- Установить скрипт на `profitx.by` через GTM
 
 - Первую SQL-схему фиксируем в `supabase/migrations/20260427_001_init_schema.sql`
 - Для первичного ключа во всех основных таблицах используем `UUID` с `gen_random_uuid()`

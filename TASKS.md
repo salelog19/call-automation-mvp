@@ -1,57 +1,74 @@
-# TASKS
+# TASKS (Статус проекта)
 
-## Done
+## ✅ Выполнено
 
-- Сформулирован MVP в 1 предложении
-- Определён обязательный набор данных: `ym_uid`, UTM-метки, показанный номер, номер клиента, дата/время звонка
-- Создана базовая документация проекта
-- Утверждена схема данных для `Supabase`
-- Подготовлена первая SQL-миграция для таблиц `projects`, `tracking_numbers`, `visits`, `calls`
-- Добавлена Git-шпаргалка в `docs/git-cheatsheet.md`
-- Зафиксировано правило MVP: один `visit` может иметь несколько `calls`
-- SQL-схема усилена составными foreign key от межпроектных связей
-- Выбран backend-стек: `Node.js 24 LTS` + `TypeScript` + `Fastify` + `pg` + `Zod` + `pino`
-- Создан каркас backend-проекта
-- Реализован `POST /assign-number`
-- Реализована логика выбора свободного подменного номера
-- Реализовано сохранение `visit` в `Supabase`
-- Реализован `POST /call-webhook`
-- Реализовано сохранение звонка в `Supabase`
-- Реализована привязка звонка к визиту
-- Подготовлен тестовый сценарий ручной проверки MVP
-- Подготовлена инструкция первого деплоя backend в `Coolify`
-- Backend успешно задеплоен через Coolify (Dockerfile исправлен, curl добавлен, сеть `r9nejr488xlvrw3rwepooir9` подключена)
-- Healthcheck проходит: `{"database":"up","ok":true}`
-- Протестирована полная цепочка MVP: `/assign-number` выдаёт номер, `/call-webhook` сохраняет звонок с атрибуцией
-- Сделать JS-сниппет для подмены номера на сайте (`frontend/ct-snippet.js`)
-- Создать демо-страницу (`frontend/demo.html`)
-- Создать документацию фронтенда (`frontend/README.md`)
-- Создать гайд по телефонии (`docs/telephony-setup.md`)
+### Backend (готов)
+- Бэкенд задеплоен и работает: `https://api.proaudio.by/health` → `{"service":"call-automation-mvp-backend","status":"ok"}`
+- Реализованы эндпоинты:
+  - `GET /health` — проверка здоровья
+  - `POST /assign-number` — назначение номера
+  - `POST /call-webhook` — обработка звонков
+  - `GET /api/number` — получение назначенного номера (новый)
+- Dockerfile упрощен (single-stage), исправлены зависимости
+- Подключение к Supabase настроено (сеть `r9nejr488xlvrw3rwepooir9`)
 
-## Todo
+### Frontend (готов)
+- Создан JS-скрипт: `frontend/ct-snippet.js` (стандартный)
+- Создан компактный скрипт: `frontend/phones.js` (для GTM)
+- Создана демо-страница: `frontend/demo.html`
+- Создана документация: `frontend/README.md`
 
-- Продумать способ получения `ym_uid` на клиенте
-- Определить провайдера телефонии для webhook звонков
-- Настроить интеграцию с `n8n` (опционально): приём webhook от телефонии, пересылка, уведомления
+### Документация
+- `README.md`, `TASKS.md`, `DECISIONS.md` — актуальное состояние
+- `docs/mvp.md`, `docs/schema.md`, `docs/manual-test-scenario.md`
+- `docs/telephony-setup.md` — гайд по телефонии
+- `docs/MVP-SUMMARY.md` — итоговая сводка
 
-## In Progress
+### Инфраструктура
+- Coolify настроен, домен `api.proaudio.by` проксируется
+- Supabase запущен, база данных доступна
+- n8n workflow шаблон: `n8n/call-webhook-workflow.json`
 
-- Тестирование полного цикла на сайте (JS-сниппет + телефония)
+## ❌ Проблемы
 
-## Next Steps (детально)
+1. **Coolify не видит новые коммиты** (API возвращает "Not found")
+2. **Деплой падает** из-за конфликтов `package-lock.json`
+3. **Эндпоинты недоступны** через `api.proaudio.by` (404)
 
-### 1. Настроить провайдера телефонии
-- Выбрать провайдера (Задарма, SIP-транк, локальная АТС)
-- Настроить отправку webhook при звонке на:
-  - `POST https://xc52y96c5mwkh4tkh9nx9s89.176.31.78.108.sslip.io/call-webhook`
-  - Или через `n8n` для дополнительной обработки
+## 🎯 Следующие шаги
 
-### 2. Протестировать полный цикл
-- Открыть `frontend/demo.html` с UTM-метками
-- Проверить, что номер на странице меняется
-- Имитировать звонок (через curl или реальную телефонию)
-- Проверить атрибуцию в БД
+### 1. Задеплоить бэкенд (приоритет)
+- Зайти в **Coolify UI**: `http://176.31.78.108:8000/project/e3270mri4sg3jlu93f24rmog/environment/invidqset9vy5zucfhn28iq9`
+- Нажать **Deploy** → **Force rebuild** (обязательно!)
+- Дождаться успешного завершения
+- Проверить: `curl -I https://api.proaudio.by/health`
 
-### 3. n8n (опционально)
-- Создать workflow: приём webhook → обогащение данными → отправка в Telegram/CRM
-- Проверить, что `n8n` уже установлен на сервере (доступен по порту/домену)
+### 2. Протестировать API
+```bash
+# Назначение номера
+curl -X POST https://api.proaudio.by/assign-number \
+  -H "Content-Type: application/json" \
+  -d '{"projectId":"28ada9a2-6a05-4847-8aba-d51bcec3f4b6","sessionId":"test-session","ymUid":"ym-123"}'
+
+# Получение номера
+curl https://api.proaudio.by/api/number?projectId=28ada9a2-6a05-4847-8aba-d51bcec3f4b6&sessionId=test-session
+```
+
+### 3. Установить на сайт (profitx.by)
+Через Google Tag Manager:
+```html
+<script async src="https://api.proaudio.by/scripts/phones.js?28ada9a2-6a05-4847-8aba-d51bcec3f4b6"></script>
+```
+
+### 4. Настроить телефонию
+- Выбрать провайдера (Zadarma, SIP-транк)
+- Настроить webhook → `https://api.proaudio.by/call-webhook`
+
+## 📊 Итоговое состояние
+**Бэкенд готов к работе**, но нужно:
+1. Успешно задеплоить в Coolify (Force rebuild)
+2. Протестировать эндпоинты через домен
+3. Установить скрипт на сайт
+
+**Все файлы находятся в репозитории:**
+`https://github.com/salelog19/call-automation-mvp`
