@@ -33,9 +33,15 @@
     }catch(e){return ''}
   };
   const gT=()=>{
-    const p=new URLSearchParams(location.search);
-    return{us:p.get('utm_source')||'',um:p.get('utm_medium')||'',uc:p.get('utm_campaign')||'',ut:p.get('utm_term')||'',ui:p.get('utm_content')||''}
-  };
+  const p=new URLSearchParams(location.search);
+  return{
+    utmSource:p.get('utm_source')||'',
+    utmMedium:p.get('utm_medium')||'',
+    utmCampaign:p.get('utm_campaign')||'',
+    utmTerm:p.get('utm_term')||'',
+    utmContent:p.get('utm_content')||''
+  }
+};
   const rN=async()=>{
     if(!C.pid)return{error:'no_pid'};
     const b={projectId:C.pid,sessionId:gS(),ymUid:gU(),landingUrl:location.href,referrer:document.referrer||'',...gT(),visitedAt:new Date().toISOString()};
