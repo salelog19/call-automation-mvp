@@ -120,45 +120,6 @@ export async function assignNumber(input: AssignNumberInput): Promise<AssignNumb
     };
   }
 }
-
-      const candidateNumber = await findAvailableTrackingNumber(client, input.projectId, visitedAt);
-
-      if (!candidateNumber) {
-        const project = await getProject(client, input.projectId);
-
-        if (!project) {
-          throw new ProjectNotFoundError(input.projectId);
-        }
-
-        throw new NoAvailableNumberError(project.default_phone);
-      }
-
-      const assignmentExpiresAt = new Date(visitedAt.getTime() + config.ASSIGNMENT_WINDOW_MINUTES * 60_000);
-      const visit = await createVisit(client, input, candidateNumber, visitedAt, assignmentExpiresAt);
-
-      await client.query(
-        `
-          update tracking_numbers
-          set last_assigned_at = $2
-          where id = $1
-        `,
-        [candidateNumber.tracking_number_id, visitedAt],
-      );
-
-      return {
-        assignmentExpiresAt: assignmentExpiresAt.toISOString(),
-        isExistingAssignment: false,
-        shownPhoneNumber: candidateNumber.phone_number,
-        trackingNumberId: candidateNumber.tracking_number_id,
-        visitId: visit.id,
-      };
-    });
-  } catch (error) {
-    console.error('ASSIGN ERROR FULL:', error);
-    throw error;
-  }
-}
-
 async function lockSessionAssignment(client: PoolClient, projectId: string, sessionId: string): Promise<void> {
   await client.query(
     `
