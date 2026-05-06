@@ -55,12 +55,14 @@ export class NoAvailableNumberError extends Error {
   }
 }
 
-export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult> {
+export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult | { debug: string; stack: string }> {
   try {
-    withTransaction(async (client: PoolClient) => {
+    return await withTransaction(async (client) => {
       const visitedAt = input.visitedAt ? new Date(input.visitedAt) : new Date();
+      console.log('lockSessionAssignment: projectId=%s, sessionId=%s', input.projectId, input.sessionId);
       await lockSessionAssignment(client, input.projectId, input.sessionId);
 
+      console.log('findExistingAssignment: projectId=%s, sessionId=%s, visitedAt=%s', input.projectId, input.sessionId, visitedAt);
       const existingAssignment = await findExistingAssignment(client, input.projectId, input.sessionId, visitedAt);
 
       if (existingAssignment) {
@@ -72,6 +74,52 @@ export async function assignNumber(input: AssignNumberInput): Promise<AssignNumb
           visitId: existingAssignment.visit_id,
         };
       }
+
+      console.log('findAvailableTrackingNumber: projectId=%s, visitedAt=%s', input.projectId, visitedAt);
+      const candidateNumber = await findAvailableTrackingNumber(client, input.projectId, visitedAt);
+
+      if (!candidateNumber) {
+        console.log('getProject: projectId=%s', input.projectId);
+        const project = await getProject(client, input.projectId);
+
+        if (!project) {
+          throw new ProjectNotFoundError(input.projectId);
+        }
+
+        throw new NoAvailableNumberError(project.default_phone);
+      }
+
+      const assignmentExpiresAt = new Date(visitedAt.getTime() + config.ASSIGNMENT_WINDOW_MINUTES * 60_000);
+      console.log('createVisit: input=%o, candidateNumber=%o, visitedAt=%s, assignmentExpiresAt=%s', input, candidateNumber, visitedAt, assignmentExpiresAt);
+      const visit = await createVisit(client, input, candidateNumber, visitedAt, assignmentExpiresAt);
+
+      console.log('update tracking_numbers: id=%s, last_assigned_at=%s', candidateNumber.tracking_number_id, visitedAt);
+      await client.query(
+        `
+        update tracking_numbers
+        set last_assigned_at = $2
+        where id = $1
+        `,
+        [candidateNumber.tracking_number_id, visitedAt],
+      );
+
+      return {
+        assignmentExpiresAt: assignmentExpiresAt.toISOString(),
+        isExistingAssignment: false,
+        shownPhoneNumber: candidateNumber.phone_number,
+        trackingNumberId: candidateNumber.tracking_number_id,
+        visitId: visit.id,
+      };
+    });
+  } catch (error) {
+    console.error('assignNumber error:', error.message);
+    console.error(error.stack);
+    return {
+      debug: error.message,
+      stack: error.stack
+    };
+  }
+}
 
       const candidateNumber = await findAvailableTrackingNumber(client, input.projectId, visitedAt);
 
