@@ -26,7 +26,7 @@ export function buildApp() {
   });
 
   app.register(fastifyStatic, {
-    root: path.join(process.cwd(), 'frontend'),
+    root: path.join(process.cwd(), 'public'),
     prefix: '/scripts/',
   });
 
