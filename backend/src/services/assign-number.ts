@@ -1,7 +1,7 @@
 import type { PoolClient } from 'pg';
 
 import { config } from '../config.js';
-import { withTransaction } from '../db.js';
+import { withTransaction } from '../db';
 
 export type AssignNumberInput = {
   landingUrl?: string;
@@ -56,54 +56,59 @@ export class NoAvailableNumberError extends Error {
 }
 
 export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult> {
-  return withTransaction(async (client) => {
-    const visitedAt = input.visitedAt ? new Date(input.visitedAt) : new Date();
-    await lockSessionAssignment(client, input.projectId, input.sessionId);
+  try {
+    return await withTransaction(async (client) => {
+      const visitedAt = input.visitedAt ? new Date(input.visitedAt) : new Date();
+      await lockSessionAssignment(client, input.projectId, input.sessionId);
 
-    const existingAssignment = await findExistingAssignment(client, input.projectId, input.sessionId, visitedAt);
+      const existingAssignment = await findExistingAssignment(client, input.projectId, input.sessionId, visitedAt);
 
-    if (existingAssignment) {
-      return {
-        assignmentExpiresAt: existingAssignment.assignment_expires_at.toISOString(),
-        isExistingAssignment: true,
-        shownPhoneNumber: existingAssignment.shown_phone_number,
-        trackingNumberId: existingAssignment.tracking_number_id,
-        visitId: existingAssignment.visit_id,
-      };
-    }
-
-    const candidateNumber = await findAvailableTrackingNumber(client, input.projectId, visitedAt);
-
-    if (!candidateNumber) {
-      const project = await getProject(client, input.projectId);
-
-      if (!project) {
-        throw new ProjectNotFoundError(input.projectId);
+      if (existingAssignment) {
+        return {
+          assignmentExpiresAt: existingAssignment.assignment_expires_at.toISOString(),
+          isExistingAssignment: true,
+          shownPhoneNumber: existingAssignment.shown_phone_number,
+          trackingNumberId: existingAssignment.tracking_number_id,
+          visitId: existingAssignment.visit_id,
+        };
       }
 
-      throw new NoAvailableNumberError(project.default_phone);
-    }
+      const candidateNumber = await findAvailableTrackingNumber(client, input.projectId, visitedAt);
 
-    const assignmentExpiresAt = new Date(visitedAt.getTime() + config.ASSIGNMENT_WINDOW_MINUTES * 60_000);
-    const visit = await createVisit(client, input, candidateNumber, visitedAt, assignmentExpiresAt);
+      if (!candidateNumber) {
+        const project = await getProject(client, input.projectId);
 
-    await client.query(
-      `
-        update tracking_numbers
-        set last_assigned_at = $2
-        where id = $1
-      `,
-      [candidateNumber.tracking_number_id, visitedAt],
-    );
+        if (!project) {
+          throw new ProjectNotFoundError(input.projectId);
+        }
 
-    return {
-      assignmentExpiresAt: assignmentExpiresAt.toISOString(),
-      isExistingAssignment: false,
-      shownPhoneNumber: candidateNumber.phone_number,
-      trackingNumberId: candidateNumber.tracking_number_id,
-      visitId: visit.id,
-    };
-  });
+        throw new NoAvailableNumberError(project.default_phone);
+      }
+
+      const assignmentExpiresAt = new Date(visitedAt.getTime() + config.ASSIGNMENT_WINDOW_MINUTES * 60_000);
+      const visit = await createVisit(client, input, candidateNumber, visitedAt, assignmentExpiresAt);
+
+      await client.query(
+        `
+          update tracking_numbers
+          set last_assigned_at = $2
+          where id = $1
+        `,
+        [candidateNumber.tracking_number_id, visitedAt],
+      );
+
+      return {
+        assignmentExpiresAt: assignmentExpiresAt.toISOString(),
+        isExistingAssignment: false,
+        shownPhoneNumber: candidateNumber.phone_number,
+        trackingNumberId: candidateNumber.tracking_number_id,
+        visitId: visit.id,
+      };
+    });
+  } catch (error) {
+    console.error('ASSIGN ERROR FULL:', error);
+    throw error;
+  }
 }
 
 async function lockSessionAssignment(client: PoolClient, projectId: string, sessionId: string): Promise<void> {
