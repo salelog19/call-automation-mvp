@@ -39,7 +39,11 @@ export async function checkDatabaseConnection(): Promise<void> {
     await client.query('select 1');
     console.log('Query succeeded: select 1');
   } catch (error) {
-    console.error('Database connection check failed:', error.message);
+    if (error instanceof Error) {
+  console.error('Database connection check failed:', error.message);
+} else {
+  console.error('Database connection check failed:', error);
+}
     throw error;
   } finally {
     client.release();
@@ -60,7 +64,11 @@ export async function withTransaction<T>(callback: (client: PoolClient) => Promi
     console.log('Transaction committed');
     return result;
   } catch (error) {
-    console.error('Transaction error, rolling back:', error.message);
+    if (error instanceof Error) {
+  console.error('Transaction error, rolling back:', error.message);
+} else {
+  console.error('Transaction error, rolling back:', error);
+}
     await client.query('rollback');
     console.log('Transaction rolled back');
     throw error;

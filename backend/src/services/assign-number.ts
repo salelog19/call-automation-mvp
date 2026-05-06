@@ -55,7 +55,7 @@ export class NoAvailableNumberError extends Error {
   }
 }
 
-export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult | { debug: string; stack: string }> {
+export async function assignNumber(input: AssignNumberInput): Promise<AssignNumberResult> {
   try {
     return await withTransaction(async (client) => {
       const visitedAt = input.visitedAt ? new Date(input.visitedAt) : new Date();
@@ -111,15 +111,16 @@ export async function assignNumber(input: AssignNumberInput): Promise<AssignNumb
         visitId: visit.id,
       };
     });
-  } catch (error) {
+ } catch (error) {
+  if (error instanceof Error) {
     console.error('assignNumber error:', error.message);
     console.error(error.stack);
-    return {
-      debug: error.message,
-      stack: error.stack
-    };
+  } else {
+    console.error('assignNumber error:', error);
   }
+  throw error;
 }
+
 async function lockSessionAssignment(client: PoolClient, projectId: string, sessionId: string): Promise<void> {
   await client.query(
     `
@@ -250,4 +251,5 @@ async function createVisit(
   );
 
   return result.rows[0];
+  }
 }
