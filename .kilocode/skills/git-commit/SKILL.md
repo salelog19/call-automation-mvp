@@ -1,5 +1,4 @@
 ---
-
 name: fast-deploy
 description: Быстрый деплой без лишних вопросов
 -----------------------------------------------
@@ -14,16 +13,13 @@ push
 
 выполняй ТОЛЬКО:
 
-1. Выполни:
-
-cd backend && npm run build
+1. cd backend && npm run build
 
 2. Если build успешен:
 
-cd ..
-git add .
-git commit -m "update"
-git push
+* git add .
+* git commit -m "update"
+* git push
 
 3. После git push:
 
@@ -39,5 +35,8 @@ git push
 * делай дополнительные git команды
 
 5. Работай только внутри текущего workspace проекта.
+6. Сообщай результат КРАТКО:
 
-6. Сообщи результат выполнения.
+* build ok
+* pushed
+* нажмите Redeploy в Coolify
