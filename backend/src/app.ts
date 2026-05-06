@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
+import cors from '@fastify/cors';
 import path from 'path';
 
 import { config } from './config.js';
@@ -23,6 +24,9 @@ export function buildApp() {
               },
             },
     },
+    app.register(cors, {
+  origin: true,
+});
   });
 
   app.register(fastifyStatic, {
