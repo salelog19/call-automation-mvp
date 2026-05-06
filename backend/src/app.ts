@@ -12,23 +12,22 @@ export function buildApp() {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
-      transport: process.env.NODE_ENV === 'production'
-        ? undefined
-        : {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'SYS:standard',
+      transport:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : {
+              target: 'pino-pretty',
+              options: {
+                colorize: true,
+                translateTime: 'SYS:standard',
+              },
             },
-          },
     },
   });
 
-  // Serve static files from 'frontend' directory
   app.register(fastifyStatic, {
-    root: path.join(import.meta.dirname, '..', '..', 'frontend'),
+    root: path.join(process.cwd(), 'frontend'),
     prefix: '/scripts/',
-    decorateReply: false,
   });
 
   app.get('/', async () => {
@@ -38,8 +37,6 @@ export function buildApp() {
     };
   });
 
- 
-
   registerHealthRoute(app);
   registerAssignNumberRoute(app);
   registerCallWebhookRoute(app);
@@ -47,4 +44,3 @@ export function buildApp() {
 
   return app;
 }
-// rebuild
