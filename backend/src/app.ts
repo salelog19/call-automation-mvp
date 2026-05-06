@@ -24,11 +24,11 @@ export function buildApp() {
               },
             },
     },
-    app.register(cors, {
-  origin: true,
-});
   });
 
+  app.register(cors, {
+    origin: true,
+  });
   app.register(fastifyStatic, {
   root: path.join(process.cwd(), 'public'),
   prefix: '/scripts/',
