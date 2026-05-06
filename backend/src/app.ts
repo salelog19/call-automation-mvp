@@ -26,7 +26,7 @@ export function buildApp() {
   });
 
   app.register(fastifyStatic, {
-  root: path.join(process.cwd(),'backend','public'),
+  root: path.join(process.cwd(), 'public'),
   prefix: '/scripts/',
   setHeaders: (res, pathName) => {
     if (pathName.endsWith('.js')) {
