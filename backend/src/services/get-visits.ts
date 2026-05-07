@@ -19,7 +19,7 @@ export type VisitRow = {
 };
 
 export type VisitsResponse = {
-  visits: Array<{
+  items: Array<{
     id: string;
     projectId: string;
     sessionId: string;
@@ -123,7 +123,7 @@ export async function getVisits(
   );
 
   // Map rows to response format (camelCase and ISO strings)
-  const visits = dataResult.rows.map(row => ({
+  const items = dataResult.rows.map(row => ({
     id: row.id,
     projectId: row.project_id,
     sessionId: row.session_id,
@@ -141,7 +141,7 @@ export async function getVisits(
   }));
 
   return {
-    visits,
+    items,
     pagination: {
       total,
       limit: pagination.limit,
