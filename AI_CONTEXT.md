@@ -75,8 +75,94 @@ visit → assign-number → shown number → visits table
 * Supabase connection
 
 Не ломать эти flows без необходимости.
+#2 Dangerous Areas
+
+Любые изменения требуют осторожности:
+
+* assign-number flow
+* tracking_numbers allocation
+* Dockerfile
+* Coolify deploy
+* package-lock.json
+* phones.js snippet
+* CORS
+* PostgreSQL connection
+
+Любые risky changes сначала объяснять.
+
+
+3. Allowed Scope Control
+
+Менять только файлы, необходимые для текущей задачи.
+
+Не:
+
+переименовывать архитектуру
+менять unrelated endpoints
+переписывать working flows
+менять deployment без необходимости
+
+Минимальный viable change preferred.
+
+4. Preferred engineering style
+
+# Engineering Style
+
+Предпочтения проекта:
+
+* simple architecture
+* readable code
+* backend-first
+* minimal abstractions
+* explicit SQL
+* explicit flows
+* predictable behavior
+* small incremental changes
+
+Избегать:
+
+* overengineering
+* generic frameworks
+* giant abstractions
+* magic behavior
+
+5. Definition of Done
+
+# Definition Of Done
+
+Задача считается завершенной только если:
+
+* code compiles
+* deploy succeeds
+* endpoint responds
+* browser flow works
+* no console errors
+* no network errors
+* DB insertion works
+* minimal verification steps provided
+
+6. Current priorities
+
+# Current Priorities
+
+Текущий фокус:
+
+1. stable attribution engine
+2. admin analytics foundation
+3. visits visibility
+4. tracking numbers management
+5. telephony integration later
+
+Сейчас НЕ приоритет:
+
+* billing
+* multi-tenancy
+* microservices
+* advanced auth
+* scaling optimization
+* enterprise features
 <environment_details>
-Current time: 2026-05-07T20:23:44+03:00
+Current time: 2026-05-07T20:27:18+03:00
 Open tabs:
   .kilocode/skills/git-commit/SKILL.md
   backend/public/phones.js
