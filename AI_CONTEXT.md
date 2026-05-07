@@ -62,8 +62,21 @@ visit → assign-number → shown number → visits table
 
 Не переписывать unrelated files.
 Не усложнять архитектуру раньше времени.
+#1 Stable Working Components
+
+Сейчас стабильно работают:
+
+* dynamic phone swap
+* assign-number API
+* visits insertion
+* tracking number reservation
+* GTM snippet loading
+* backend deploy
+* Supabase connection
+
+Не ломать эти flows без необходимости.
 <environment_details>
-Current time: 2026-05-07T20:19:21+03:00
+Current time: 2026-05-07T20:23:44+03:00
 Open tabs:
   .kilocode/skills/git-commit/SKILL.md
   backend/public/phones.js
