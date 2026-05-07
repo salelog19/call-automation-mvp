@@ -8,6 +8,7 @@ import { registerAssignNumberRoute } from './routes/assign-number.js';
 import { registerCallWebhookRoute } from './routes/call-webhook.js';
 import { registerHealthRoute } from './routes/health.js';
 import { registerGetNumberRoute } from './routes/get-number.js';
+import { registerVisitsRoute } from './routes/visits.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -46,10 +47,11 @@ export function buildApp() {
     };
   });
 
-  registerHealthRoute(app);
-  registerAssignNumberRoute(app);
-  registerCallWebhookRoute(app);
-  registerGetNumberRoute(app);
+   registerHealthRoute(app);
+   registerAssignNumberRoute(app);
+   registerCallWebhookRoute(app);
+   registerGetNumberRoute(app);
+   registerVisitsRoute(app);
 
   return app;
 }
